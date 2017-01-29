@@ -1,4 +1,4 @@
-Natoms= 15                            
+Natoms= 15              !At least ONE SPACE AFTER EVERY EQUALS SIGN!!!              
 timestep= 4			    !timestep of the simulation
 Maxsteps= 6000                       !max number of geometries in movie.xyz (you can use higher number)
 Ntraj= 3                           !number of trajectories to scan
