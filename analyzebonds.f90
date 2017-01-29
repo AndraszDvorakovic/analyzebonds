@@ -2,32 +2,34 @@ program AnalyzeBonds
 implicit none
 real,allocatable,dimension(:,:) :: array,bonds,arrayhelp
 integer,allocatable,dimension(:,:) :: existbonds
-integer :: i,j,k,m,n,o,Maxsteps,step,Natoms,Nbonds,choice, Maxbonds,Ntraj
-character*30 :: junk, mainfolder, moviesource, trajfolder, xn, form, outputfile1,outputfile2, finalfolder
+integer :: i,j,k,m,n,o,q,Maxsteps,step,Natoms,Nbonds,choice,Ntraj
+character*30 :: junk, mainfolder, moviesource, trajfolder, xn, form, outputfile1,outputfile2,outputfile3, finalfolder
 real :: time,timestep,attofs
 attofs=0.0241888425
 
-Natoms=15                            
-timestep=4			    !timestep of the simulation
-Maxsteps=6000                       !max number of geometries in movie.xyz (you can use higher number)
-Maxbonds=14                         !maximum of real bonds in molecule (matters only if you want to scan more distances)
-Ntraj=100                           !number of trajectories to scan
-mainfolder='ION1TRAJ_0ST'           !there are located folders with TRAJ.n folders
-trajfolder='/TRAJ.'
+open (40,file='inanalyze.in', status='old')
+read (40,*) junk, Natoms
+read (40,*) junk, timestep
+read (40,*) junk, Maxsteps
+read (40,*) junk, Ntraj
+read (40,*) junk, mainfolder
+read (40,*) junk, trajfolder
+!print *, mainfolder
+                     
 
 !----------------------------------------------------------------------------------------------
 !Which bonds exist? Which bonds we want?
 open(30,file='existbonds.txt',status='replace')
 allocate(existbonds(Natoms,2))
 
-print *, 'How many bonds? (All bonds = 100 Personal option)'
+print *, 'How many bonds?'
 read *, choice
 
-if (choice == 100) then				!This option works only 
-Nbonds=14					!with predefined bonds 						
-existbonds(1,1)=1				!in this array
-existbonds(1,2)=2				!every first row means the first atom
-existbonds(2,1)=1				!every second row means the second atom
+if (choice == 1000) then			
+Nbonds=14											
+existbonds(1,1)=1			
+existbonds(1,2)=2				
+existbonds(2,1)=1				
 existbonds(2,2)=3					
 existbonds(3,1)=1
 existbonds(3,2)=4
@@ -58,14 +60,10 @@ existbonds(14,2)=9
 	end do
 end if
 
-if (choice > Maxbonds .AND. choice /= 100) then									
-  print *, 'Too many bonds for this molecule'
-  stop
-endif
 
-if (choice /= 100) then								!This works for any 
-print *, 'Type pairs of atom numbers to scan bond lenght between them.'		!distance between any atoms
-print *, 'The order of atoms is the same as in movie.xyz' 			!
+if (choice /= 1000) then								
+print *, 'Write pairs of atom numbers to scan distance between them.'		
+print *, 'The order of atoms is the same as in movie.xyz' 		
 print *, 'Separate pairs by enter.'   
   Nbonds=choice
   	do o=1,Nbonds
@@ -88,7 +86,7 @@ allocate(bonds(Maxsteps,Nbonds+1))
 
 finalfolder=TRIM(mainfolder)//'analyzed'
 call system('mkdir '//TRIM(finalfolder))
-
+    
 do n=1,Ntraj
 	if (n < 10) then
 		form = '(I1)'
@@ -102,61 +100,76 @@ do n=1,Ntraj
 	write (xn,form) n					!
 	moviesource=TRIM(mainfolder)//TRIM(trajfolder)//xn      !Here I am preparing names 
 	outputfile1=xn						!of input and output files 
-	outputfile2=xn					        !to change with n - number of trajectory
-
+	outputfile2=xn
+    outputfile3=xn					        !
+!print *,TRIM(moviesource)//'/movie.xyz'
 	open(10,file=TRIM(moviesource)//'/movie.xyz',status='old')                         
-	open(20,file=TRIM(outputfile1)//'_bonds1to7.txt',status='replace')                 
-
-	if (Nbonds >= 8) then                                                   !In case of Nbonds > 14 it is necessary  
-  	  open(21,file=TRIM(outputfile2)//'_bonds8to14.txt',status='replace')   !to create another outputfile.
+		open(20,file=TRIM(outputfile1)//'_bonds1to6.txt',status='replace')                 
+    		write(20,*) '#Time (fs)', '        #Bond lenght (A)'
+	if (Nbonds >= 7) then                                                   !In case of Nbonds > 14 it is necessary  
+  	  open(21,file=TRIM(outputfile2)//'_bonds7to12.txt',status='replace')   !to create another outputfile.
           write(21,*) '#Time (fs)', '        #Bond lenght (A)'		        !There are max 7 scans per outputfile
 	endif
-	write(20,*) '#Time (fs)', '        #Bond lenght (A)'
-
-	do i=1,Maxsteps						!Here I am getting data from movie
-		read(10,*,end=100)                              !counting bond lenghts and writing them
+    if (Nbonds >= 13) then
+		open(22,file=TRIM(outputfile3)//'_bonds13to18.txt',status='replace')
+			write(22,*) '#Time (fs)', '        #Bond lenght (A)'
+    end if
+    
+	do i=1,Maxsteps									!Here I am getting data from movie
+		read(10,*,end=100)                              !computing bond lenghts and writing them
     		read(10,*,end=100) junk,junk,step
-    	    	time=timestep*step*attofs
     
     		do j=1,Natoms
 	       		read(10,*) junk,array(j,1),array(j,2),array(j,3)
         	end do
-        
+
         	do m=1,Nbonds
       			arrayhelp(1,1)=(array(existbonds(m,1),1)-array(existbonds(m,2),1))**2.0
    				arrayhelp(1,2)=(array(existbonds(m,1),2)-array(existbonds(m,2),2))**2.0
            		arrayhelp(1,3)=(array(existbonds(m,1),3)-array(existbonds(m,2),3))**2.0
-       			bonds(i,1)=time
    				bonds(i,m+1)=sqrt(arrayhelp(1,1)+arrayhelp(1,2)+arrayhelp(1,3))
        		end do
-        
-write(20,*) bonds(i,1), bonds(i,2), bonds(i,3), bonds(i,4), bonds(i,5), bonds(i,6), bonds(i,7), bonds(i,8)
-		if (Nbonds >= 8) then
-write(21,*) bonds(i,1), bonds(i,9), bonds(i,10),bonds(i,11),bonds(i,12),bonds(i,13), bonds(i,14), bonds(i,15)
-   		endif  
+            
+         time=timestep*step*attofs
+         bonds(i,1)=time
+         
+			if (Nbonds >= 7 .AND. Nbonds <13) then
+  		write(20,*) bonds(i,1),(bonds(i,q),q=2,7)
+   		write(21,*) bonds(i,1),(bonds(i,q),q=8,Nbonds+1)   
+   			endif 
+            if (Nbonds >= 13) then
+   		write(20,*) bonds(i,1),(bonds(i,q),q=2,7)
+   		write(21,*) bonds(i,1),(bonds(i,q),q=8,13)
+   		write(22,*) bonds(i,1),(bonds(i,q),q=14,Nbonds+1)
+   			else
+   		write(20,*) bonds(i,1),(bonds(i,q),q=2,Nbonds+1) 
+            endif  
 	end do
 
-
-
-100    call system('cp '//TRIM(outputfile1)//'_bonds1to7.txt '//TRIM(finalfolder))
-       call system('rm '//TRIM(outputfile1)//'_bonds1to7.txt')
-       if (Nbonds >= 8) then
-       call system('cp '//TRIM(outputfile2)//'_bonds8to14.txt '//TRIM(finalfolder))
-       call system('rm '//TRIM(outputfile2)//'_bonds8to14.txt')
+	   call system('cp '//TRIM(outputfile1)//'_bonds1to6.txt '//TRIM(finalfolder))
+       call system('rm '//TRIM(outputfile1)//'_bonds1to6.txt')
+       if (Nbonds >= 7) then
+       call system('cp '//TRIM(outputfile2)//'_bonds7to12.txt '//TRIM(finalfolder))
+       call system('rm '//TRIM(outputfile2)//'_bonds7to12.txt')
        endif
+       if (Nbonds >= 13) then
+       call system('cp '//TRIM(outputfile3)//'_bonds13to18.txt '//TRIM(finalfolder))
+       call system('rm '//TRIM(outputfile3)//'_bonds13to18.txt')
+       end if
        call system('echo -n '//xn//'_')
        
-  close(10)
+100 close(10)
 	close(20)
 	close(21)
-
+    close(22)
+    
 end do
+
 print *, 'Done'
-print *, 'To plot more files in xmgrace type   xmgrace -nxy file1 -nxy file2'
-print *, 'Thank god, it works'
+print *, 'To plot more files in xmgrace write   xmgrace -nxy file1 -nxy file2'
+
 
 close(30)
+close(40)
 
 end program AnalyzeBonds
-
-
