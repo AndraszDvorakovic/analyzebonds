@@ -1,0 +1,10 @@
+Natoms= 15                            
+timestep= 4			    !timestep of the simulation
+Maxsteps= 6000                       !max number of geometries in movie.xyz (you can use higher number)
+Ntraj= 3                           !number of trajectories to scan
+mainfolder= 'ION1TRAJ_0ST'           !there are located folders with TRAJ.n folders
+trajfolder= '/TRAJ.'
+
+
+
+
