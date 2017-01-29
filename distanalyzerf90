@@ -1,4 +1,4 @@
-program AnalyzeBonds
+program DistanceAnalyzer
 implicit none
 real,allocatable,dimension(:,:) :: array,bonds,arrayhelp
 integer,allocatable,dimension(:,:) :: existbonds
@@ -172,4 +172,4 @@ print *, 'To plot more files in xmgrace write   xmgrace -nxy file1 -nxy file2'
 close(30)
 close(40)
 
-end program AnalyzeBonds
+end program DistanceAnalyzer
