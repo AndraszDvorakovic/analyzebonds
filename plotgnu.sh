@@ -1,4 +1,4 @@
-######## INPUT FOR PLOTTING SCRIPT ####### not for distanalyzer
+######## INPUT FOR PLOTTING SCRIPT #######not for distanalyzer
 
 Ntraj=3                   #number of trajectories
 mainfolder='ION1TRAJ_0ST'   #folder with trajectories, same as in inanalyze.in
