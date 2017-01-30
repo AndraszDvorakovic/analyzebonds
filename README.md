@@ -7,4 +7,4 @@
 #plotgnu.sh is a script that creates graph for every single trajectory and saves it as .png file
 #it has its own shortinput
 
-#distanalyzer.f90 is uncompiled program
+#distanalyzer.f90 is an uncompiled program
