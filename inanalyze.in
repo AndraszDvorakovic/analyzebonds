@@ -1,0 +1,12 @@
+####### INPUT FOR DISTANALYZER ##############
+Natoms= 15                          !AT LEAST ONE SPACE AFTER EQUALS SIGN  
+timestep= 4			    !timestep of the simulation
+Maxsteps= 6000                       !max number of geometries in movie.xyz (you can use higher number)
+Ntraj= 100                           !number of trajectories to scan
+mainfolder= 'ION1TRAJ_0ST'           !there are located folders with TRAJ.n folders
+trajfolder= '/TRAJ.'
+
+
+##### FOR GETTING ALL GRAPHS LAUNCH SCRIPT plotgnu.sh 
+##### In plotgnu.sh there is special input part which you need to check
+##### Results are in folder mainfolderanalyzed
