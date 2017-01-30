@@ -1,5 +1,10 @@
-# program:
+distanalyzer scans bond lenghts in time 
+it gets geometries from movie.xyz files
+up to 999 trajectories and up to 18 bond lenghts without editing
+ 
+inanalyze.in is an inputfile for distanalyzer
 
-#zanalyzuje vsechny vazby a vypise je do souboru v závislost na case
+plotgnu.sh is a script that creates graph for every single trajectory and saves it as .png file
+it has its own shortinput
 
-#zanalyzuje nebo vytiskne jen vyzadanae vzdalednosti 
+distanalyzer.f90 is uncompiled program
